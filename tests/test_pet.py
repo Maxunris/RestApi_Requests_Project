@@ -3,6 +3,7 @@ from schemas.pet_schema import pet_schema
 from jsonschema import validate
 from utils.requests_helper import api_request
 import pytest
+import requests
 
 
 def test_add_new_pet(base_api_url):
@@ -32,6 +33,42 @@ def test_update_pet(base_api_url):
     assert response.json()['name'] == "cat"
     print(response.text)
 
+
+
+def test_find_pet_by_id(base_api_url):
+
+    endpoint = (f"pet/{main_id}")
+    headers = main_headers()
+    response = api_request(base_api_url, endpoint,"GET", headers=headers)
+    assert response.status_code == 200
+    validate(response.json(), pet_schema)
+    assert response.json()['id'] == main_id
+    assert response.json()['name'] == "cat"
+    print(response.text)
+
+
+
+
+
+def test_update_with_form_data(base_api_url):
+    endpoint = (f"pet/{main_id}")
+    payload = {
+        'name': 'Marina',
+        'status': 'Switty'
+    }
+    headers = main_headers()
+    response = api_request(base_api_url, endpoint,"POST", data=payload)
+    assert response.status_code == 200
+    assert response.json()['code'] == 200
+    assert response.json()['message'] == (f'{main_id}')
+    print(response.text)
+
+
+
+
+
+
+
 @pytest.mark.parametrize(
     "params",
     [{'status': 'available'},
@@ -50,14 +87,4 @@ def test_find_pet_by_status(base_api_url, params):
 
     print(response.text)
 
-
-def test_find_pet_by_id(base_api_url):
-
-    endpoint = (f"pet/{main_id}")
-    headers = main_headers()
-    response = api_request(base_api_url, endpoint,"GET", headers=headers)
-    assert response.status_code == 200
-    validate(response.json(), pet_schema)
-    assert response.json()['id'] == main_id
-    print(response.text)
 
