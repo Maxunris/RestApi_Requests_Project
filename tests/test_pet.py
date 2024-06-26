@@ -1,7 +1,8 @@
 from tests.base import add_new_pet, main_headers
-from schemas.add_pet_schema import add_pet
+from schemas.pet_schema import pet_schema
 from jsonschema import validate
 from utils.requests_helper import api_request
+import pytest
 
 
 def test_add_new_pet(base_api_url):
@@ -15,8 +16,8 @@ def test_add_new_pet(base_api_url):
     print(response.text)
     assert response.status_code == 200
     assert response.json()['status'] == "available"
-    validate(response.json(), add_pet)
-
+    validate(response.json(), pet_schema)
+    assert response.json()['name'] == "doggie"
     main_id = response.json()['id']
 
 
@@ -25,7 +26,38 @@ def test_update_pet(base_api_url):
                "tags": [{"id": 0, "name": "string"}], "status": "available"}
     endpoint = "pet"
     headers = main_headers()
-    response = api_request(base_api_url, endpoint, "POST", headers=headers, json=payload)
+    response = api_request(base_api_url, endpoint, "PUT", headers=headers, json=payload)
     assert response.status_code == 200
+    validate(response.json(), pet_schema)
+    assert response.json()['name'] == "cat"
     print(response.text)
-    print(payload)
+
+@pytest.mark.parametrize(
+    "params",
+    [{'status': 'available'},
+    {'status': 'pending'},
+    {'status': 'sold'}],
+    ids =["available status", "pending status", "sold status"]
+)
+def test_find_pet_by_status(base_api_url, params):
+    endpoint = "pet/findByStatus"
+    headers = main_headers()
+    response = api_request(base_api_url, endpoint,"GET", params=params, headers=headers)
+    assert response.status_code == 200
+
+    for pet in response.json():
+        assert pet['status'] == params['status']
+
+    print(response.text)
+
+
+def test_find_pet_by_id(base_api_url):
+
+    endpoint = (f"pet/{main_id}")
+    headers = main_headers()
+    response = api_request(base_api_url, endpoint,"GET", headers=headers)
+    assert response.status_code == 200
+    validate(response.json(), pet_schema)
+    assert response.json()['id'] == main_id
+    print(response.text)
+
