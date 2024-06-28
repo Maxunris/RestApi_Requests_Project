@@ -1,1 +1,1 @@
-# RestApi_Requests_Project
+Тестовый проект для тренировки навыков автотестирования Rest Api на Python
