@@ -22,7 +22,7 @@ def test_add_new_pet_negarive(base_api_url):
 
 
 @allure.title("Update pet data")
-def test_update_pet(base_api_url):
+def test_update_pet_negarive(base_api_url):
     payload = {"id": main_id, "category": {"id": 0, "name": "string"}, "name": "cat", "photoUrls": ["string"],
                "tags": [{"id": 0, "name": "string"}], "status": "available"}
     endpoint = "pet"
